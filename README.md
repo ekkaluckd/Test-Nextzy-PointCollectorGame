@@ -4,8 +4,8 @@
 ![alt text]({HomePage}.png)
 | | ลิงก์ |
 |---|---|
-| Website | _TODO: Vercel URL_ |
-| API Docs (Swagger, ยิงทดสอบได้) | _TODO: Render URL_/docs/ |
+| Website | https://test-nextzy-point-collector-game.vercel.app/ |
+| API Docs (Swagger, ยิงทดสอบได้) | https://test-nextzy-pointcollectorgame.onrender.com/docs/ |
 
 ## Features
 
