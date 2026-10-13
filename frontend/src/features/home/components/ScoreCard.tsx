@@ -2,7 +2,6 @@ import type { Checkpoint } from "@/types/game";
 import { formatNumber } from "@/lib/format";
 import { ProgressTrack } from "./ProgressTrack";
 import { ClaimButton } from "./ClaimButton";
-import { positionStyle } from "../utils";
 
 interface ScoreCardProps {
   totalScore: number;
@@ -31,15 +30,14 @@ export function ScoreCard({ totalScore, maxScore, checkpoints, claimingScore, on
 
       <ProgressTrack totalScore={totalScore} maxScore={maxScore} checkpoints={checkpoints} />
 
-      <div className="relative mt-2 h-5">
+      <div className="mt-2 flex justify-end gap-1">
         {checkpoints.map((cp) => (
-          <div key={cp.score} className="absolute" style={positionStyle((cp.score / maxScore) * 100)}>
-            <ClaimButton
-              checkpoint={cp}
-              loading={claimingScore === cp.score}
-              onClaim={() => onClaim(cp)}
-            />
-          </div>
+          <ClaimButton
+            key={cp.score}
+            checkpoint={cp}
+            loading={claimingScore === cp.score}
+            onClaim={() => onClaim(cp)}
+          />
         ))}
       </div>
     </section>
