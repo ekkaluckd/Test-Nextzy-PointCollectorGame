@@ -1,7 +1,7 @@
 # เกมสะสมคะแนน Nextzy
 
 เว็บแอปเกมสะสมคะแนน: ผู้เล่นกดสุ่มคะแนน สะสมให้ถึง checkpoint แล้วกดรับรางวัล
-
+![alt text]({HomePage}.png)
 | | ลิงก์ |
 |---|---|
 | Website | _TODO: Vercel URL_ |
@@ -124,7 +124,4 @@ npm run dev                  # http://localhost:3000
 cd backend && go test ./...
 ```
 
-## TODO
-- [ ] Deploy (Vercel + Render) แล้วใส่ลิงก์ด้านบน
-- [ ] ผล PageSpeed (Mobile)
-- [ ] Screenshots
+
