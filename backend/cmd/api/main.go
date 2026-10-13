@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
+
 	"github.com/ctrlaltname/nextzy/backend/internal/application"
 	"github.com/ctrlaltname/nextzy/backend/internal/infrastructure/postgres"
 	transport "github.com/ctrlaltname/nextzy/backend/internal/transport/http"
@@ -24,6 +26,8 @@ func main() {
 }
 
 func run() error {
+	_ = godotenv.Load() // optional .env for local development; real env vars take precedence
+
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		return errors.New("DATABASE_URL is required")
