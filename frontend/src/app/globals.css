@@ -1,25 +1,44 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Design tokens (from Figma) */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-google-sans), sans-serif;
+
+  --color-background: #ffffff;
+  --color-foreground: #1f1f1f;
+  --color-muted: #6b6b6b;
+  --color-surface: #f4f4f4;
+  --color-border: #e5e5e5;
+
+  --color-brand: #ff2a2a;
+  --color-brand-dark: #b8323a;
+  --color-brand-soft: #f98b8b;
+  --color-accent: #ffc226;
+  --color-reset: #1a0aff;
+  --color-progress: #ff8a4c;
+  --color-success: #0e7a2e;
+  --color-disabled: #d9d9d9;
+
+  --color-chip: #1ee3d5;
+  --color-chip-text: #0b7a4a;
+  --color-chip-faded: #7bb98a;
+  --color-chip-win: #19f06a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@utility bg-gradient-play {
+  background-image: linear-gradient(to bottom, #b83a3a, #ff1f1f);
+}
+
+@utility bg-gradient-reward {
+  background-image: linear-gradient(to bottom, #2a1aff, #7b2bff);
+}
+
+@utility bg-gradient-game {
+  background-image: linear-gradient(to bottom, #f7f5f3, #f3dcbe);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: var(--font-sans);
 }
