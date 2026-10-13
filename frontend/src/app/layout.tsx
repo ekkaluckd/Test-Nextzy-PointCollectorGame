@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Google_Sans } from "next/font/google";
+import { Kanit } from "next/font/google";
 import "./globals.css";
 
-const googleSans = Google_Sans({
-  variable: "--font-google-sans",
+const kanit = Kanit({
+  variable: "--font-kanit",
   subsets: ["latin", "thai"],
+  weight: ["400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="th" className={`${googleSans.variable} h-full antialiased`}>
+    <html lang="th" className={`${kanit.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-surface">{children}</body>
     </html>
   );

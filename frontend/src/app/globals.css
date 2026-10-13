@@ -2,7 +2,7 @@
 
 /* Design tokens (from Figma) */
 @theme inline {
-  --font-sans: var(--font-google-sans), sans-serif;
+  --font-sans: var(--font-kanit), sans-serif;
 
   --color-background: #ffffff;
   --color-foreground: #333333;
