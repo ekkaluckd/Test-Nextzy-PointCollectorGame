@@ -17,7 +17,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="th" className={`${kanit.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-surface">{children}</body>
+      <body className="flex min-h-full flex-col bg-surface">
+        <main className="mx-auto flex w-full max-w-app flex-1 flex-col bg-background">{children}</main>
+      </body>
     </html>
   );
 }

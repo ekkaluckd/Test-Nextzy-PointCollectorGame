@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import Link from "next/link";
 import { gameService } from "@/services/game-service";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { Button } from "@/components/ui/Button";
@@ -9,7 +8,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Toast } from "@/components/ui/Toast";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { StickyFooter } from "@/components/ui/StickyFooter";
+import { FooterLink } from "@/components/ui/FooterLink";
 import { SCORE_OPTIONS } from "@/constants/game";
 import { formatNumber } from "@/lib/format";
 import { ScoreChip, type ChipState } from "./components/ScoreChip";
@@ -54,7 +53,7 @@ export function GameScreen() {
             คะแนนสะสม {formatNumber(totalScore)}/{formatNumber(summary.maxScore)}
           </h1>
         ) : (
-          <Skeleton className="h-8 w-60" />
+          <Skeleton className="h-8 w-60 rounded-md" />
         )}
       </div>
 
@@ -73,14 +72,7 @@ export function GameScreen() {
         )}
       </div>
 
-      <StickyFooter>
-        <Link
-          href="/"
-          className="flex h-12 w-full items-center justify-center rounded-full bg-accent text-xl font-bold text-white"
-        >
-          กลับหน้าหลัก
-        </Link>
-      </StickyFooter>
+      <FooterLink href="/" label="กลับหน้าหลัก" />
 
       <Modal
         open={phase === "finished" && winner !== null}

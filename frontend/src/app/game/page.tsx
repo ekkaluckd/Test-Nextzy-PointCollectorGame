@@ -6,9 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function GamePage() {
-  return (
-    <main className="mx-auto flex w-full max-w-[500px] flex-1 flex-col">
-      <GameScreen />
-    </main>
-  );
+  return <GameScreen />;
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ELIMINATION_STEP_MS } from "@/constants/game";
+import { getErrorMessage } from "@/lib/errors";
 
 export type DrawPhase = "idle" | "drawing" | "finished";
 
@@ -50,7 +51,7 @@ export function useEliminationDraw(
       result = await drawResult();
     } catch (e) {
       if (!mounted.current) return;
-      setError(e instanceof Error ? e.message : "สุ่มคะแนนไม่สำเร็จ กรุณาลองใหม่");
+      setError(getErrorMessage(e, "สุ่มคะแนนไม่สำเร็จ กรุณาลองใหม่"));
       setPhase("idle");
       return;
     }

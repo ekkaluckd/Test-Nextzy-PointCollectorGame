@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getErrorMessage } from "@/lib/errors";
 
 type AsyncState<T> =
   | { status: "loading" }
@@ -8,7 +9,7 @@ type AsyncState<T> =
   | { status: "success"; data: T };
 
 const toErrorState = (e: unknown) =>
-  ({ status: "error", error: e instanceof Error ? e.message : "โหลดข้อมูลไม่สำเร็จ" }) as const;
+  ({ status: "error", error: getErrorMessage(e, "โหลดข้อมูลไม่สำเร็จ") }) as const;
 
 /** Loads data on mount and exposes loading / error / success plus reload helpers. */
 export function useAsyncData<T>(fetcher: () => Promise<T>) {

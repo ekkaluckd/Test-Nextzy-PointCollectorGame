@@ -13,12 +13,21 @@ interface HistoryTabsProps {
   rewards: RewardHistoryItem[];
 }
 
-function EmptyState({ text }: { text: string }) {
-  return <p className="py-10 text-center text-sm text-subtle">{text}</p>;
-}
-
 export function HistoryTabs({ plays, rewards }: HistoryTabsProps) {
   const [tab, setTab] = useState<Tab>("play");
+
+  const items =
+    tab === "play"
+      ? plays.map((p) => ({
+          id: p.id,
+          title: `เล่นได้ ${formatNumber(p.score)} คะแนน`,
+          subtitle: `เล่นเมื่อ ${formatDateTime(p.playedAt)}`,
+        }))
+      : rewards.map((r) => ({
+          id: r.id,
+          title: `ได้รับรางวัล ${r.rewardName}`,
+          subtitle: `ได้รับเมื่อ ${formatDateTime(r.claimedAt)}`,
+        }));
 
   return (
     <section>
@@ -27,32 +36,14 @@ export function HistoryTabs({ plays, rewards }: HistoryTabsProps) {
         <TabPill label="ประวัติรางวัล" active={tab === "reward"} onClick={() => setTab("reward")} />
       </div>
 
-      {tab === "play" ? (
-        plays.length === 0 ? (
-          <EmptyState text="ยังไม่มีประวัติการเล่น" />
-        ) : (
-          <ul>
-            {plays.map((p) => (
-              <HistoryItem
-                key={p.id}
-                variant="play"
-                title={`เล่นได้ ${formatNumber(p.score)} คะแนน`}
-                subtitle={`เล่นเมื่อ ${formatDateTime(p.playedAt)}`}
-              />
-            ))}
-          </ul>
-        )
-      ) : rewards.length === 0 ? (
-        <EmptyState text="ยังไม่มีประวัติรางวัล" />
+      {items.length === 0 ? (
+        <p className="py-10 text-center text-sm text-subtle">
+          {tab === "play" ? "ยังไม่มีประวัติการเล่น" : "ยังไม่มีประวัติรางวัล"}
+        </p>
       ) : (
         <ul>
-          {rewards.map((r) => (
-            <HistoryItem
-              key={r.id}
-              variant="reward"
-              title={`ได้รับรางวัล ${r.rewardName}`}
-              subtitle={`ได้รับเมื่อ ${formatDateTime(r.claimedAt)}`}
-            />
+          {items.map((item) => (
+            <HistoryItem key={item.id} variant={tab} title={item.title} subtitle={item.subtitle} />
           ))}
         </ul>
       )}

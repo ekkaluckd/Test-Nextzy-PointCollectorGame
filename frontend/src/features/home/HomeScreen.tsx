@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import type { Checkpoint } from "@/types/game";
 import { gameService } from "@/services/game-service";
 import { useAsyncData } from "@/hooks/useAsyncData";
@@ -9,8 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Toast } from "@/components/ui/Toast";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { StickyFooter } from "@/components/ui/StickyFooter";
+import { FooterLink } from "@/components/ui/FooterLink";
 import { CoinImage } from "@/components/CoinImage";
+import { getErrorMessage } from "@/lib/errors";
 import { ScoreCard } from "./components/ScoreCard";
 import { HistoryTabs } from "./components/HistoryTabs";
 import { HomeSkeleton } from "./components/HomeSkeleton";
@@ -36,7 +36,7 @@ export function HomeScreen() {
       await action();
       await refresh();
     } catch (e) {
-      setToast(e instanceof Error ? e.message : "ทำรายการไม่สำเร็จ");
+      setToast(getErrorMessage(e, "ทำรายการไม่สำเร็จ"));
     }
   };
 
@@ -77,14 +77,7 @@ export function HomeScreen() {
         </>
       )}
 
-      <StickyFooter>
-        <Link
-          href="/game"
-          className="flex h-12 w-full items-center justify-center rounded-full bg-accent text-xl font-bold text-white"
-        >
-          ไปเล่นเกม
-        </Link>
-      </StickyFooter>
+      <FooterLink href="/game" label="ไปเล่นเกม" />
 
       <Modal
         open={claimedReward !== null}
