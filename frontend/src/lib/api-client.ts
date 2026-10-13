@@ -10,7 +10,7 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
 
 /** Single entry point for HTTP calls: base URL, player header and error mapping live here. */
 export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {

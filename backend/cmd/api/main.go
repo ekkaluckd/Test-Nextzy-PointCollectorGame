@@ -40,7 +40,7 @@ func run() error {
 
 	// Wire the layers: infrastructure -> application -> transport.
 	game := application.NewGameService(repo)
-	router := transport.NewRouter(game, strings.Split(getEnv("CORS_ORIGINS", "http://localhost:3000"), ","))
+	router := transport.NewRouter(game, parseOrigins(getEnv("CORS_ORIGINS", "http://localhost:3000")))
 
 	srv := &http.Server{
 		Addr:              ":" + getEnv("PORT", "8080"),
@@ -70,4 +70,15 @@ func getEnv(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+// parseOrigins splits a comma separated list, tolerating spaces and trailing slashes.
+func parseOrigins(raw string) []string {
+	var origins []string
+	for _, o := range strings.Split(raw, ",") {
+		if o = strings.TrimRight(strings.TrimSpace(o), "/"); o != "" {
+			origins = append(origins, o)
+		}
+	}
+	return origins
 }
