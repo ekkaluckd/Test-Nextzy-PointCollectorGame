@@ -6,7 +6,7 @@ import type { Checkpoint } from "@/types/game";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { StickyFooter } from "@/components/ui/StickyFooter";
-import { CoinIcon } from "@/components/icons";
+import { CoinImage } from "@/components/CoinImage";
 import { mockPlayHistory, mockRewardHistory, mockSummary } from "@/mocks/player";
 import { ScoreCard } from "./components/ScoreCard";
 import { HistoryTabs } from "./components/HistoryTabs";
@@ -75,7 +75,7 @@ export function HomeScreen() {
 
       <Modal
         open={claimed !== null}
-        icon={<CoinIcon className="size-[78px]" />}
+        icon={<CoinImage size={78} className="-scale-x-100" />}
         title="ยินดีด้วย"
         description={`คุณได้รับรางวัล ${claimed?.rewardName ?? ""}`}
         onClose={() => setClaimed(null)}

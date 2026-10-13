@@ -1,6 +1,7 @@
 import type { Checkpoint } from "@/types/game";
 import { formatNumber } from "@/lib/format";
-import { CheckIcon, CoinIcon } from "@/components/icons";
+import { CheckIcon } from "@/components/icons";
+import { CoinImage } from "@/components/CoinImage";
 import { positionStyle } from "../utils";
 
 interface ProgressTrackProps {
@@ -10,7 +11,7 @@ interface ProgressTrackProps {
 }
 
 function CheckpointMarker({ checkpoint, isFinal }: { checkpoint: Checkpoint; isFinal: boolean }) {
-  if (isFinal) return <CoinIcon className="size-6" />;
+  if (isFinal) return <CoinImage size={24} />;
 
   const reached = checkpoint.status !== "LOCKED";
   return (
