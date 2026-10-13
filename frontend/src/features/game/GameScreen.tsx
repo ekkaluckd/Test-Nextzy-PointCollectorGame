@@ -2,47 +2,61 @@
 
 import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
+import { gameService } from "@/services/game-service";
+import { useAsyncData } from "@/hooks/useAsyncData";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { Toast } from "@/components/ui/Toast";
+import { Skeleton } from "@/components/ui/Skeleton";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { StickyFooter } from "@/components/ui/StickyFooter";
 import { SCORE_OPTIONS } from "@/constants/game";
 import { formatNumber } from "@/lib/format";
-import { mockSummary } from "@/mocks/player";
 import { ScoreChip, type ChipState } from "./components/ScoreChip";
 import { useEliminationDraw } from "./useEliminationDraw";
 
 export function GameScreen() {
-  // TODO: replace mock state with API calls.
-  const [totalScore, setTotalScore] = useState(mockSummary.totalScore);
-  const maxScore = mockSummary.maxScore;
-
-  // Holds the new total from the draw until the animation reveals it.
+  const { state, reload } = useAsyncData(gameService.getSummary);
+  // Total revealed after a draw; overrides the loaded summary until the next visit.
+  const [revealedTotal, setRevealedTotal] = useState<number | null>(null);
   const pendingTotal = useRef<number | null>(null);
 
   const drawResult = useCallback(async () => {
-    const score = SCORE_OPTIONS[Math.floor(Math.random() * SCORE_OPTIONS.length)];
-    pendingTotal.current = Math.min(totalScore + score, maxScore);
-    return score;
-  }, [totalScore, maxScore]);
-
-  const handleReveal = useCallback(() => {
-    if (pendingTotal.current !== null) setTotalScore(pendingTotal.current);
+    const result = await gameService.play();
+    pendingTotal.current = result.totalScore;
+    return result.score;
   }, []);
 
-  const { phase, eliminated, winner, error, start, reset } = useEliminationDraw(
+  const handleReveal = useCallback(() => setRevealedTotal(pendingTotal.current), []);
+
+  const { phase, eliminated, winner, error, start, reset, clearError } = useEliminationDraw(
     SCORE_OPTIONS,
     drawResult,
     handleReveal,
   );
+
+  if (state.status === "error") {
+    return <ErrorState message={state.error} onRetry={reload} />;
+  }
+
+  const summary = state.status === "success" ? state.data : null;
+  const totalScore = revealedTotal ?? summary?.totalScore ?? 0;
+  const isFull = summary !== null && totalScore >= summary.maxScore;
 
   const chipState = (value: number): ChipState =>
     winner === value ? "winner" : eliminated.has(value) || winner !== null ? "eliminated" : "active";
 
   return (
     <div className="flex flex-1 flex-col bg-gradient-game pb-28">
-      <h1 className="pt-12 text-center text-2xl font-semibold text-heading">
-        คะแนนสะสม {formatNumber(totalScore)}/{formatNumber(maxScore)}
-      </h1>
+      <div className="flex h-[84px] items-end justify-center">
+        {summary ? (
+          <h1 className="text-center text-2xl font-semibold text-heading">
+            คะแนนสะสม {formatNumber(totalScore)}/{formatNumber(summary.maxScore)}
+          </h1>
+        ) : (
+          <Skeleton className="h-8 w-60" />
+        )}
+      </div>
 
       <div className="grid grid-cols-4 gap-2 px-2 pt-40">
         {SCORE_OPTIONS.map((value) => (
@@ -51,13 +65,11 @@ export function GameScreen() {
       </div>
 
       <div className="flex flex-col items-center gap-3 pt-16">
-        <Button variant="danger" onClick={start} disabled={phase !== "idle"}>
+        <Button variant="danger" onClick={start} disabled={!summary || isFull || phase !== "idle"}>
           {phase === "drawing" ? "กำลังสุ่ม..." : "สุ่มคะแนน"}
         </Button>
-        {error && (
-          <p role="alert" className="text-sm text-brand">
-            {error}
-          </p>
+        {isFull && phase === "idle" && (
+          <p className="text-sm text-muted">คะแนนสะสมเต็มแล้ว กลับไปรับรางวัลที่หน้าหลักได้เลย</p>
         )}
       </div>
 
@@ -76,6 +88,7 @@ export function GameScreen() {
         description={`${formatNumber(winner ?? 0)} คะแนน`}
         onClose={reset}
       />
+      <Toast message={error} onDismiss={clearError} />
     </div>
   );
 }

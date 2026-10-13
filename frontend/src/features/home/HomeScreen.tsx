@@ -3,66 +3,79 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Checkpoint } from "@/types/game";
+import { gameService } from "@/services/game-service";
+import { useAsyncData } from "@/hooks/useAsyncData";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { Toast } from "@/components/ui/Toast";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { StickyFooter } from "@/components/ui/StickyFooter";
 import { CoinImage } from "@/components/CoinImage";
-import { mockPlayHistory, mockRewardHistory, mockSummary } from "@/mocks/player";
 import { ScoreCard } from "./components/ScoreCard";
 import { HistoryTabs } from "./components/HistoryTabs";
+import { HomeSkeleton } from "./components/HomeSkeleton";
+
+const loadHomeData = async () => {
+  const [summary, plays, rewards] = await Promise.all([
+    gameService.getSummary(),
+    gameService.getPlayHistory(),
+    gameService.getRewardHistory(),
+  ]);
+  return { summary, plays, rewards };
+};
 
 export function HomeScreen() {
-  // TODO: replace mock state with API calls.
-  const [summary, setSummary] = useState(mockSummary);
-  const [rewards, setRewards] = useState(mockRewardHistory);
-  const [plays, setPlays] = useState(mockPlayHistory);
-  const [claimed, setClaimed] = useState<Checkpoint | null>(null);
+  const { state, reload, refresh } = useAsyncData(loadHomeData);
+  const [claimingScore, setClaimingScore] = useState<number | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [claimedReward, setClaimedReward] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
-  const handleClaim = (checkpoint: Checkpoint) => {
-    setSummary((s) => ({
-      ...s,
-      checkpoints: s.checkpoints.map((cp) =>
-        cp.score === checkpoint.score ? { ...cp, status: "CLAIMED" } : cp,
-      ),
-    }));
-    setRewards((r) => [
-      { id: crypto.randomUUID(), rewardName: checkpoint.rewardName, claimedAt: new Date().toISOString() },
-      ...r,
-    ]);
-    setClaimed(checkpoint);
+  const runAction = async (action: () => Promise<void>) => {
+    try {
+      await action();
+      await refresh();
+    } catch (e) {
+      setToast(e instanceof Error ? e.message : "ทำรายการไม่สำเร็จ");
+    }
   };
 
-  const handleReset = () => {
-    setSummary({
-      ...summary,
-      totalScore: 0,
-      checkpoints: summary.checkpoints.map((cp) => ({ ...cp, status: "LOCKED" })),
+  const handleClaim = async (checkpoint: Checkpoint) => {
+    setClaimingScore(checkpoint.score);
+    await runAction(async () => {
+      const reward = await gameService.claimReward(checkpoint.score);
+      setClaimedReward(reward.rewardName);
     });
-    setPlays([]);
-    setRewards([]);
+    setClaimingScore(null);
+  };
+
+  const handleReset = async () => {
+    setResetting(true);
+    await runAction(gameService.reset);
+    setResetting(false);
   };
 
   return (
     <>
-      <div className="bg-hero px-4 py-4">
-        <ScoreCard
-          totalScore={summary.totalScore}
-          maxScore={summary.maxScore}
-          checkpoints={summary.checkpoints}
-          claimingScore={null}
-          onClaim={handleClaim}
-        />
-      </div>
+      {state.status === "loading" && <HomeSkeleton />}
+      {state.status === "error" && <ErrorState message={state.error} onRetry={reload} />}
+      {state.status === "success" && (
+        <>
+          <div className="bg-hero p-4">
+            <ScoreCard {...state.data.summary} claimingScore={claimingScore} onClaim={handleClaim} />
+          </div>
 
-      <div className="flex justify-center py-6">
-        <Button variant="reset" onClick={handleReset}>
-          RESET
-        </Button>
-      </div>
+          <div className="flex justify-center py-6">
+            <Button variant="reset" onClick={handleReset} disabled={resetting}>
+              {resetting ? "กำลังรีเซต..." : "RESET"}
+            </Button>
+          </div>
 
-      <div className="pb-28">
-        <HistoryTabs plays={plays} rewards={rewards} />
-      </div>
+          <div className="pb-28">
+            <HistoryTabs plays={state.data.plays} rewards={state.data.rewards} />
+          </div>
+        </>
+      )}
 
       <StickyFooter>
         <Link
@@ -74,12 +87,13 @@ export function HomeScreen() {
       </StickyFooter>
 
       <Modal
-        open={claimed !== null}
+        open={claimedReward !== null}
         icon={<CoinImage size={78} className="-scale-x-100" />}
         title="ยินดีด้วย"
-        description={`คุณได้รับรางวัล ${claimed?.rewardName ?? ""}`}
-        onClose={() => setClaimed(null)}
+        description={`คุณได้รับรางวัล ${claimedReward ?? ""}`}
+        onClose={() => setClaimedReward(null)}
       />
+      <Toast message={toast} onDismiss={() => setToast(null)} />
     </>
   );
 }

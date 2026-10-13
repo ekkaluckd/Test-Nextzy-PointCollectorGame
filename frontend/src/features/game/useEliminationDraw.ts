@@ -74,5 +74,7 @@ export function useEliminationDraw(
     setWinner(null);
   }, []);
 
-  return { phase, eliminated, winner, error, start, reset };
+  const clearError = useCallback(() => setError(null), []);
+
+  return { phase, eliminated, winner, error, start, reset, clearError };
 }
