@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Nextzy Point Game API
+  version: 1.0.0
+  description: |
+    API ของเกมสะสมคะแนน Nextzy
+
+    ทุก endpoint ใต้ `/api` ต้องส่ง header `X-Player-Id` (UUID) เพื่อระบุผู้เล่น
+    ผู้เล่นจะถูกสร้างอัตโนมัติในครั้งแรกที่เรียก
+
+    **วิธีทดสอบ:** กด **Authorize** แล้วใส่ UUID อะไรก็ได้ เช่น `3fa85f64-5717-4562-b3fc-2c963f66afa6`
+servers:
+  - url: /
+security:
+  - PlayerId: []
+tags:
+  - name: Player
+  - name: Game
+  - name: Rewards
+
+paths:
+  /api/players/me/summary:
+    get:
+      tags: [Player]
+      summary: คะแนนสะสมและสถานะ checkpoint
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Summary" }
+        "400": { $ref: "#/components/responses/InvalidPlayer" }
+
+  /api/players/me/plays:
+    get:
+      tags: [Player]
+      summary: ประวัติการเล่น (ใหม่สุดก่อน)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Play" }
+        "400": { $ref: "#/components/responses/InvalidPlayer" }
+
+  /api/players/me/rewards:
+    get:
+      tags: [Player]
+      summary: ประวัติรางวัล (ใหม่สุดก่อน)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Reward" }
+        "400": { $ref: "#/components/responses/InvalidPlayer" }
+
+  /api/players/me/reset:
+    post:
+      tags: [Player]
+      summary: รีเซตคะแนน ประวัติการเล่น และรางวัลทั้งหมด
+      responses:
+        "204": { description: รีเซตสำเร็จ }
+        "400": { $ref: "#/components/responses/InvalidPlayer" }
+
+  /api/game/play:
+    post:
+      tags: [Game]
+      summary: สุ่มคะแนน (300 / 500 / 1000 / 3000) แล้วบวกเข้าคะแนนสะสม
+      description: สุ่มที่ฝั่ง server เพื่อกันการโกง คะแนนสะสมสูงสุด 10,000
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlayResult" }
+        "400": { $ref: "#/components/responses/InvalidPlayer" }
+        "409":
+          description: คะแนนสะสมเต็มแล้ว
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/rewards/{score}/claim:
+    post:
+      tags: [Rewards]
+      summary: รับรางวัลของ checkpoint
+      parameters:
+        - name: score
+          in: path
+          required: true
+          description: คะแนนของ checkpoint
+          schema: { type: integer, enum: [5000, 7500, 10000] }
+      responses:
+        "201":
+          description: รับรางวัลสำเร็จ
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reward" }
+        "400": { $ref: "#/components/responses/InvalidPlayer" }
+        "404":
+          description: ไม่พบ checkpoint นี้
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "409":
+          description: คะแนนยังไม่ถึง หรือรับรางวัลนี้ไปแล้ว
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /health:
+    get:
+      tags: [Player]
+      summary: Health check
+      security: []
+      responses:
+        "200": { description: OK }
+
+components:
+  securitySchemes:
+    PlayerId:
+      type: apiKey
+      in: header
+      name: X-Player-Id
+
+  responses:
+    InvalidPlayer:
+      description: ไม่มีหรือ X-Player-Id ไม่ใช่ UUID
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    Checkpoint:
+      type: object
+      properties:
+        score: { type: integer, example: 5000 }
+        rewardName: { type: string, example: A }
+        status: { type: string, enum: [LOCKED, CLAIMABLE, CLAIMED] }
+    Summary:
+      type: object
+      properties:
+        totalScore: { type: integer, example: 8500 }
+        maxScore: { type: integer, example: 10000 }
+        checkpoints:
+          type: array
+          items: { $ref: "#/components/schemas/Checkpoint" }
+    Play:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        score: { type: integer, example: 1000 }
+        playedAt: { type: string, format: date-time }
+    Reward:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        checkpointScore: { type: integer, example: 5000 }
+        rewardName: { type: string, example: A }
+        claimedAt: { type: string, format: date-time }
+    PlayResult:
+      type: object
+      properties:
+        score: { type: integer, example: 1000 }
+        totalScore: { type: integer, example: 9500 }
+    Error:
+      type: object
+      properties:
+        message: { type: string, example: คะแนนสะสมเต็มแล้ว }

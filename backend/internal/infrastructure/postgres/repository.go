@@ -12,6 +12,7 @@ import (
 
 	"github.com/ctrlaltname/nextzy/backend/internal/application"
 	"github.com/ctrlaltname/nextzy/backend/internal/domain"
+	"github.com/ctrlaltname/nextzy/backend/internal/shared"
 )
 
 type Repository struct {
@@ -69,7 +70,7 @@ func (r *Repository) CreatePlay(ctx context.Context, p *domain.Play) error {
 func (r *Repository) ListPlays(ctx context.Context, playerID string) ([]domain.Play, error) {
 	var rows []playModel
 	err := r.db.WithContext(ctx).Where("player_id = ?", playerID).Order("played_at DESC").Find(&rows).Error
-	return mapSlice(rows, playModel.toDomain), err
+	return shared.Map(rows, playModel.toDomain), err
 }
 
 func (r *Repository) CreateRewardClaim(ctx context.Context, c *domain.RewardClaim) error {
@@ -89,7 +90,7 @@ func (r *Repository) CreateRewardClaim(ctx context.Context, c *domain.RewardClai
 func (r *Repository) ListRewardClaims(ctx context.Context, playerID string) ([]domain.RewardClaim, error) {
 	var rows []rewardClaimModel
 	err := r.db.WithContext(ctx).Where("player_id = ?", playerID).Order("claimed_at DESC").Find(&rows).Error
-	return mapSlice(rows, rewardClaimModel.toDomain), err
+	return shared.Map(rows, rewardClaimModel.toDomain), err
 }
 
 func (r *Repository) ResetPlayer(ctx context.Context, playerID string) error {
@@ -102,12 +103,4 @@ func (r *Repository) ResetPlayer(ctx context.Context, playerID string) error {
 		}
 		return tx.Model(&playerModel{ID: playerID}).Update("total_score", 0).Error
 	})
-}
-
-func mapSlice[T, U any](items []T, fn func(T) U) []U {
-	out := make([]U, len(items))
-	for i, item := range items {
-		out[i] = fn(item)
-	}
-	return out
 }
