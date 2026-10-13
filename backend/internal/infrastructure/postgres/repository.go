@@ -4,6 +4,9 @@ package postgres
 import (
 	"context"
 	"errors"
+	"log"
+	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,7 +29,7 @@ func Open(dsn string) (*Repository, error) {
 	db, err := gorm.Open(
 		// Simple protocol keeps it compatible with connection poolers such as Supabase's.
 		postgres.New(postgres.Config{DSN: dsn, PreferSimpleProtocol: true}),
-		&gorm.Config{TranslateError: true, Logger: logger.Default.LogMode(logger.Warn)},
+		&gorm.Config{TranslateError: true, Logger: newLogger()},
 	)
 	if err != nil {
 		return nil, err
@@ -35,6 +38,15 @@ func Open(dsn string) (*Repository, error) {
 		return nil, err
 	}
 	return &Repository{db: db}, nil
+}
+
+// newLogger only reports errors and genuinely slow queries; a remote DB adds ~200ms per round trip.
+func newLogger() logger.Interface {
+	return logger.New(log.New(os.Stdout, "", log.LstdFlags), logger.Config{
+		SlowThreshold:             time.Second,
+		LogLevel:                  logger.Warn,
+		IgnoreRecordNotFoundError: true,
+	})
 }
 
 func (r *Repository) Transaction(ctx context.Context, fn func(tx application.Repository) error) error {
