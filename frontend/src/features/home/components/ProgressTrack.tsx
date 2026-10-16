@@ -45,6 +45,7 @@ export function ProgressTrack({ totalScore, maxScore, checkpoints }: ProgressTra
       <div
         className="relative flex h-6 items-center"
         role="progressbar"
+        aria-label="คะแนนสะสม"
         aria-valuemin={0}
         aria-valuemax={maxScore}
         aria-valuenow={totalScore}

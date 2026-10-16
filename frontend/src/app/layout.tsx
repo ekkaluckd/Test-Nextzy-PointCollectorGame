@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
+import { preconnect } from "react-dom";
 import "./globals.css";
 
 const kanit = Kanit({
@@ -15,6 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  // Open the connection to the API early; the first data request is on the LCP path.
+  if (process.env.NEXT_PUBLIC_API_URL) preconnect(process.env.NEXT_PUBLIC_API_URL, { crossOrigin: "anonymous" });
+
   return (
     <html lang="th" className={`${kanit.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-surface">
