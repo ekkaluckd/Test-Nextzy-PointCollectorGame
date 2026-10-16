@@ -7,6 +7,15 @@
 | Website | https://test-nextzy-point-collector-game.vercel.app/ |
 | API Docs (Swagger, ยิงทดสอบได้) | https://test-nextzy-pointcollectorgame.onrender.com/docs/ |
 
+> [!IMPORTANT]
+> ### 🙏 คำสารภาพจากผู้จัดทำ
+> **โปรเจกต์นี้มีการใช้ AI ช่วยเขียนโค้ดบางส่วน**
+>
+> แต่ผมเข้าใจ flow การทำงานของระบบทั้งหมดเป็นอย่างดี และมั่นใจว่าสามารถ:
+> - **นำไปใช้งานจริง** และ **implement** ต่อยอดได้
+> - **แก้ไขปัญหา** ที่เกิดขึ้นได้
+> - **ปรับปรุง เพิ่ม ลด หรือแก้ไข** การทำงานได้ตามแกนหลักของระบบ
+
 
 ## Features
 
