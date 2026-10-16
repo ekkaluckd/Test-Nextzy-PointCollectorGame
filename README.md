@@ -1,7 +1,9 @@
 # เกมสะสมคะแนน Nextzy
 
 เว็บแอปเกมสะสมคะแนน: ผู้เล่นกดสุ่มคะแนน สะสมให้ถึง checkpoint แล้วกดรับรางวัล
-![alt text]({HomePage}.png)
+
+![หน้า Home](docs/home-page.png)
+
 | | ลิงก์ |
 |---|---|
 | Website | https://test-nextzy-point-collector-game.vercel.app/ |
